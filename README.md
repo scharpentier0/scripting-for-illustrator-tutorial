@@ -544,7 +544,7 @@ to : {
 }
 */
 
-/*So this would create a new document sized width: 3.5in and height : 2in in Illustrator
+//So this would create a new document sized width: 3.5in and height : 2in in Illustrator
 var doc = app.documents.add( null ,convertSize("3.5in", "pt").to.value ,convertSize("2in", "pt").to.value);
 ```
 
