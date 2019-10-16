@@ -526,6 +526,15 @@ The above is proof that you can code in the illustrator layout, itself. To run t
 ###Converting units
 Here's a function to convert any units into any other units.
 ```js
+function cleanVal(numb){
+	if(numb.indexOf('.') > -1 && numb.indexOf(',') > -1){
+		numb = parseFloat(numb.replace(/,/g, ''));
+	}else if(numb.indexOf(',') > -1){
+		numb = parseFloat(numb.replace(/,/g, '.'));
+	}
+	return numb;
+}
+
 function convertSize(val, dest){
 	/*Check if the required values were provided to the function*/
 	if (typeof dest === 'undefined' || typeof val === 'undefined' ){
@@ -550,10 +559,10 @@ function convertSize(val, dest){
 	/*Separate picas from points in a pica points writing like: 1p7 = 1pica + 7pt*/
 	if(valParts.length > 2 || valParts[1] === "p"){
 		unit = "picas";
-		val = parseFloat(valParts[0]);
+		val = parseFloat(cleanVal(valParts[0]));
 		/*Validate presence of points value, else apply 0 as default*/
 		try {
-				picaPoints = parseFloat(valParts[2]);
+				picaPoints = parseFloat(cleanVal(valParts[2]));
 		}
 		catch(err){
 			picaPoints = 0;
@@ -561,7 +570,7 @@ function convertSize(val, dest){
 	}
 	/*Assign the value and the unit to their variables*/
 	else {
-		val = parseFloat(valParts[0]);
+		val = parseFloat(cleanVal(valParts[0]));
 		unit = valParts[1];
 	}
 	/*Makes sure that the destination unit passed coinside with the ratio table naming scheme*/
@@ -649,7 +658,7 @@ function convertSize(val, dest){
 
 Here's a minified version
 ```js
-function convertSize(e,c){if(void 0===c||void 0===e)return alert("please provide both value and destination to ConvertSize() function"),!1;var a,s,i,t={inches:{inches:1,pt:1/72,px:1/72,cm:1/2.54,mm:1/25.4},pt:{inches:72,pt:1,px:1/72,cm:1/2.54,mm:1/25.4},px:{inches:72,pt:1,px:1,cm:1/2.54,mm:1/25.4},cm:{inches:2.54,pt:28.3465,px:28.3465,cm:1,mm:1/25.4},mm:{inches:25.4,pt:2.83465,px:2.83465,cm:.1,mm:1}},p=e.match(/[a-z]+|[^a-z]+/gi);if(p.length>2||"p"===p[1]){a="picas",e=parseFloat(p[0]);try{s=parseFloat(p[2])}catch(e){s=0}}else e=parseFloat(p[0]),a=p[1];switch(c){case"picas":c="pt";break;case"in":case"inches":case"pouces":case"po":c="inches";break;case"px":case"pixel":case"pixels":c="px";break;case"pt":case"points":case"point":c="pt";break;case"cm":case"centimetre":c="cm";break;case"mm":case"milimetre":c="mm"};switch(a){case"picas":e=12*e+s,i=t[c].pt,a="pt";break;case"in":case"inches":case"pouces":case"po":i=t[c].inches;break;case"px":case"pixel":case"pixels":i=t[c].px;break;case"pt":case"points":case"point":i=t[c].pt;break;case"cm":case"centimetre":i=t[c].cm;break;case"mm":case"milimetre":i=t[c].mm};return"inches"===c&&(c="in"),{from:{value:e,unit:a},to:{value:parseFloat((e*i).toFixed(2)),unit:c}}};
+function cleanVal(e){return e.indexOf(".")>-1&&e.indexOf(",")>-1?e=parseFloat(e.replace(/,/g,"")):e.indexOf(",")>-1&&(e=parseFloat(e.replace(/,/g,"."))),e}function convertSize(e,a){if(void 0===a||void 0===e)return alert("please provide both value and destination to ConvertSize() function"),!1;var c,s,i,t={inches:{inches:1,pt:1/72,px:1/72,cm:1/2.54,mm:1/25.4},pt:{inches:72,pt:1,px:1/72,cm:1/2.54,mm:1/25.4},px:{inches:72,pt:1,px:1,cm:1/2.54,mm:1/25.4},cm:{inches:2.54,pt:28.3465,px:28.3465,cm:1,mm:1/25.4},mm:{inches:25.4,pt:2.83465,px:2.83465,cm:.1,mm:1}},p=e.match(/[a-z]+|[^a-z]+/gi);if(p.length>2||"p"===p[1]){c="picas",e=parseFloat(cleanVal(p[0]));try{s=parseFloat(cleanVal(p[2]))}catch(e){s=0}}else e=parseFloat(cleanVal(p[0])),c=p[1];switch(a){case"picas":a="pt";break;case"in":case"inches":case"pouces":case"po":a="inches";break;case"px":case"pixel":case"pixels":a="px";break;case"pt":case"points":case"point":a="pt";break;case"cm":case"centimetre":a="cm";break;case"mm":case"milimetre":a="mm"};switch(c){case"picas":e=12*e+s,i=t[a].pt,c="pt";break;case"in":case"inches":case"pouces":case"po":i=t[a].inches;break;case"px":case"pixel":case"pixels":i=t[a].px;break;case"pt":case"points":case"point":i=t[a].pt;break;case"cm":case"centimetre":i=t[a].cm;break;case"mm":case"milimetre":i=t[a].mm};return"inches"===a&&(a="in"),{from:{value:e,unit:c},to:{value:parseFloat(e*i.toFixed(2)),unit:a}}}
 ```
 ---------------------------------------
 
