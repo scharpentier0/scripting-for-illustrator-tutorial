@@ -525,6 +525,30 @@ The above is proof that you can code in the illustrator layout, itself. To run t
 
 ###Converting units
 Here's a function to convert any units into any other units.
+
+Usage:
+```js
+var convertedObj = convertSize("3.5in", "pt")
+/*returns an object with this structure:
+{from : {
+	//original value
+	value : val,
+	//original unit
+	unit : unit
+},
+to : {
+	//value, rounded to a maximum of 2 decimals
+	value : parseFloat(val*ratio.toFixed(2)),
+	//destination unit
+	unit : dest
+}
+*/
+
+/*So this would create a new document sized width: 3.5in and height : 2in in Illustrator
+var doc = app.documents.add( null ,convertSize("3.5in", "pt").to.value ,convertSize("2in", "pt").to.value);
+```
+
+Full function:
 ```js
 function cleanVal(numb){
 	if(numb.indexOf('.') > -1 && numb.indexOf(',') > -1){
