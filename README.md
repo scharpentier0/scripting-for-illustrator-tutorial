@@ -5,11 +5,11 @@ Scripting for Illustrator, a tutorial for Processing coders.
 
 ###Intro
 
-I'm going to show you how to create a new document, work with existing documents, make shapes, text, and placed images. I will also show you how to manipulate preexisting objects in a layout. The tutorial assumes you are familiar with basic concepts of object oriented language and the basics of Processing. Naturally, it helps to know the Javascript language, and the basics of Adobe Illustrator. If you are new to the Javascript language (even if you know Java from Processing), here is a nice JS tutorial: http://www.codecademy.com/en/tracks/javascript
+I'm going to show you how to create a new document, work with existing documents, make shapes, text, and placed images. I will also show you how to manipulate preexisting objects in a layout. The tutorial assumes you are familiar with basic concepts of object oriented language and the basics of Processing. Naturally, it helps to know the Javascript language, and the basics of Adobe Illustrator. If you are new to the Javascript language (even if you know Java from Processing), here is a nice JS tutorial: https://www.youtube.com/watch?v=PkZNo7MFNFg
 
 ###Install
 
-Beginning with Illustrator CC, the scripting is not bundled so please download and install it now. It can be found in the Adobe Creative Cloud system menu in the Apps tab. Otherwise, you can find the link here: https://creative.adobe.com/products/estk
+Beginning with Illustrator CC, the scripting tool Adobe ExtendScript Toolkit is not bundled so please download and install it now. It can be found in the Adobe Creative Cloud system menu in the Apps tab. Otherwise, you can find the link here: https://creative.adobe.com/products/estk
 
 You will see a new folder called /Applications/Adobe ExtendScript Toolkit CC ... so now you can run the app called "ExtendScript Toolkit". Please do so now.
 
@@ -39,7 +39,7 @@ Now let's get more explicit. There is an actual function for printing to console
 $.writeln("hi there!");
 $.writeln("here is another line.");
 ```
-and you will see:
+and in the console you will see:
 
 ```
 hi there!
@@ -47,7 +47,7 @@ here is another line.
 Result: undefined
 ```
 
-At the end, you see Result: undefined since the last function call was to `$.writeln()` and that has a void return type, and nothing is sent back. 
+On the last line, you see Result: undefined since the last function call was to `$.writeln()` and that has a void return type, and nothing is sent back. 
 
 At this time, you may notice the editor's font is a sans-serif. You will most likely prefer a fixed-width font like Monaco or Courier New. I include instructions in tips and tricks for that at the far end of this tutorial.
 
@@ -116,7 +116,7 @@ Let's say you want to automate the creation of documents, for example, pulling f
 var doc = app.documents.add();
 ```
 
-Very simple, but there are parameters you could be adding to control the size, number of artboards, and to some extent, the grid layout of those art boards.
+Very simple, but there are parameters you could be adding to control the size, number of artboards, and to some extent, the grid layout of those art boards. Note that from here on out, our script will comunicate with Illustrator using points, wich is the only mesurement unit the software will accept. If you need to cconvert from points to any other units, a function is available for you at the far end of this tutorial.
 
 ```js
 //create a new document of size 100x100 points
@@ -523,6 +523,123 @@ Because why not. JS has an `eval()` function and some of you know what that impl
 
 The above is proof that you can code in the illustrator layout, itself. To run the code, access the text object then call eval on the string contents.
 
+###Converting units
+Here's a function to convert any units into any other units.
+```js
+function convertSize(val, dest){
+	/*declare needed variables*/
+	var unit, picaPoints, ratio;
+
+	/*Ratio table for most units used in illustrator*/
+	var ratioTable = {
+		/*			in		rate	pt		rate		px		rate			cm		rate		mm		rate*/
+		inches :	{	inches :	1,		pt :	1/72,		px :	1/72,			cm :	1/2.54,		mm :	1/25.4},
+		pt :		{	inches :	72,		pt :	1,			px :	1/72,			cm :	1/2.54,		mm :	1/25.4},
+		px :		{	inches :	72,		pt :	1,			px :	1,				cm :	1/2.54,		mm :	1/25.4},
+		cm :		{	inches :	2.54,	pt :	28.3465,	px :	28.3465,		cm :	1,			mm :		1/25.4},
+		mm :		{	inches :	25.4,	pt :	2.83465,	px :	2.83465,		cm :	0.1,		mm :	1}
+	};
+
+	/*Separate the passed value's number and unit*/
+	var valParts = val.match(/[a-z]+|[^a-z]+/gi);
+	/*Separate picas from points in a pica points writing like: 1p7 = 1pica + 7pt*/
+	if(valParts.length > 2 || valParts[1] === "p"){
+		unit = "picas";
+		val = parseFloat(valParts[0]);
+		/*Validate presence of points value, else apply 0 as default*/
+		try {
+				picaPoints = parseFloat(valParts[2]);
+		}
+		catch(err){
+			picaPoints = 0;
+		}
+	}
+	/*Assign the value and the unit to their variables*/
+	else {
+		val = parseFloat(valParts[0]);
+		unit = valParts[1];
+	}
+	/*Makes sure that the destination unit passed coinside with the ratio table naming scheme*/
+	switch(dest) {
+		case "picas":
+			dest = "pt";
+			break;
+		case "in":
+		case "inches":
+		case "pouces":
+		case "po":
+			dest = "inches";
+			break;
+		case "px":
+		case "pixel":
+		case "pixels":
+			dest = "px";
+			break;
+		case "pt":
+		case "points":
+		case "point":
+			dest = "pt";
+			break;
+		case "cm":
+		case "centimetre":
+			dest = "cm";
+			break;
+		case "mm":
+		case "milimetre":
+			dest = "mm";
+	}
+	/*Find and set the ratio from the ratio table matching the unit of the value to convert*/
+	switch(unit) {
+		case "picas":
+			/*With the complexity of the pica system, I rather use the points unit to convert and pretend the function was given a value mesured in points*/
+			val = (val*12)+picaPoints;
+			ratio = ratioTable[dest].pt;
+			unit = "pt";
+			break;
+		case "in":
+		case "inches":
+		case "pouces":
+		case "po":
+			ratio = ratioTable[dest].inches;
+			break;
+		case "px":
+		case "pixel":
+		case "pixels":
+			ratio = ratioTable[dest].px;
+			break;
+		case "pt":
+		case "points":
+		case "point":
+			ratio = ratioTable[dest].pt;
+			break;
+		case "cm":
+		case "centimetre":
+			ratio = ratioTable[dest].cm;
+			break;
+		case "mm":
+		case "milimetre":
+			ratio = ratioTable[dest].mm;
+	}
+	/*in is a reserved term, so for the ratio table I used the long version "inches", but I rather convert it back to shortened unit to display*/
+	if(dest === "inches"){
+		dest = "in";
+	}
+	/*return an object containing both the original value and unit and the converted value and unit*/
+	var convertedObj = {
+
+		from : {
+			value : val,
+			unit : unit
+		},
+
+		to : {
+		value : val*ratio,
+		unit : dest
+		}
+	};
+	return convertedObj;
+}
+```
 ---------------------------------------
 
 
